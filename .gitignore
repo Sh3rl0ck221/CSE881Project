@@ -1,0 +1,7 @@
+
+/__pycache__
+/millionsongsubset
+millionsongsubset.tar.gz
+*.csv
+train_triplets.txt
+*.zip
