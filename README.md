@@ -30,6 +30,15 @@ project_root/
   - `playlists_seq.csv`: Sequential playlist data.
   - `similarity_matrix.pkl`: Precomputed song similarity matrix.
   - `similarity_matrix_sparse.npz`: Sparse representation of the similarity matrix.
+ 
+## Creating the similarity matrix
+To create the matrix, first set the correct path of the file you want to make the matrix from.
+
+Next, run the code to generate a similarity_matrix.pkl and a similarity_matrix_sparse.npz file.
+
+```bash
+python code/similarity_matrix.py
+```
 
 ## Running the Code
 
