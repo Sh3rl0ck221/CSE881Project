@@ -9,7 +9,16 @@ Follow the instructions below to set up your directory and run the code.
 
 Before running the code, ensure your directory is organized as follows:
 
-project_root/ ├── code/ │ ├── matrix_factorization.py │ ├── seq.py │ ├── graph_seq.py │ ├── textual_graph_seq.py ├── processed_data/ │ ├── playlists_seq.csv │ ├── similarity_matrix.pkl │ ├── similarity_matrix_sparse.npz
+project_root/ 
+├── code/ 
+│ ├── matrix_factorization.py 
+│ ├── seq.py 
+│ ├── graph_seq.py 
+│ ├── textual_graph_seq.py 
+├── processed_data/ 
+│ ├── playlists_seq.csv 
+│ ├── similarity_matrix.pkl 
+│ ├── similarity_matrix_sparse.npz
 
 ### Files Overview
 - **code/**: Contains the scripts for different models:
