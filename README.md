@@ -26,7 +26,7 @@ project_root/
   - `seq.py`: Sequential modeling with transformer-based architecture.
   - `graph_seq.py`: Graph-based sequential model.
   - `textual_graph_seq.py`: Graph-based sequential model with textual augmentation.
-- **processed_data/**: Contains the preprocessed input data:
+- **processed_data/**: Contains the preprocessed input data (you can download it [here](https://drive.google.com/file/d/1rfDaD0JPRB1uvImhZ1QT_jpf7FVxRuK6/view?usp=sharing)):
   - `playlists_seq.csv`: Sequential playlist data.
   - `similarity_matrix.pkl`: Precomputed song similarity matrix.
   - `similarity_matrix_sparse.npz`: Sparse representation of the similarity matrix.
