@@ -7,8 +7,7 @@ from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 import math
 import csv
-from scipy.sparse import coo_matrix
-import pickle
+from scipy.sparse import coo_matrix, load_npz
 
 # Dataset class (no changes)
 class PlaylistDataset(Dataset):
@@ -110,57 +109,7 @@ class PlaylistDataset(Dataset):
             'playlist_len': torch.tensor(playlist_lens)
         }
 
-# # Simple GCN module
-# class SimpleGCN(nn.Module):
-#     def __init__(self, in_features, out_features):
-#         super(SimpleGCN, self).__init__()
-#         self.fc = nn.Linear(in_features, out_features)
-        
-#     def forward(self, X, adj):
-#         # X: (num_nodes, in_features)
-#         # adj: (num_nodes, num_nodes)
-#         # Compute A_hat = D^{-1/2} * (A + I) * D^{-1/2}
-#         A = adj + torch.eye(adj.size(0), device=adj.device)
-#         D = torch.diag(A.sum(1))
-#         D_inv_sqrt = torch.pow(D, -0.5)
-#         D_inv_sqrt[D_inv_sqrt == float('inf')] = 0
-#         D_inv_sqrt = D_inv_sqrt.diag()
-#         A_hat = D_inv_sqrt @ A @ D_inv_sqrt
-#         X = A_hat @ X
-#         X = self.fc(X)
-#         X = F.relu(X)
-#         return X
-# class SimpleGCN(nn.Module):
-#     def __init__(self, in_features, out_features):
-#         super(SimpleGCN, self).__init__()
-#         self.fc = nn.Linear(in_features, out_features)
-        
-#     def forward(self, X, adj):
-#         # X: (num_nodes, in_features)
-#         # adj: (num_nodes, num_nodes)
-#         device = adj.device
-        
-#         # Add self-loops to adjacency matrix
-#         A = adj + torch.eye(adj.size(0), device=device)
-        
-#         # Compute the degree vector
-#         D = A.sum(1)
-        
-#         # Compute D^{-1/2}
-#         D_inv_sqrt = torch.pow(D, -0.5)
-#         D_inv_sqrt[D_inv_sqrt == float('inf')] = 0.0
-        
-#         # Construct diagonal degree matrix
-#         D_inv_sqrt_mat = torch.diag(D_inv_sqrt)
-        
-#         # Compute normalized adjacency matrix
-#         A_hat = D_inv_sqrt_mat @ A @ D_inv_sqrt_mat
-        
-#         # Perform graph convolution
-#         X = A_hat @ X
-#         X = self.fc(X)
-#         X = F.relu(X)
-#         return X
+
 class SimpleGCN(nn.Module):
     def __init__(self, in_features, out_features):
         super(SimpleGCN, self).__init__()
@@ -351,29 +300,6 @@ def load_playlists(file_path, num_playlists=1000):
             playlists.append(row)
     return playlists[:num_playlists]
 
-# def load_sim_matrix(file_path):
-#     sim_matrix = {}
-#     with open(file_path, mode="r") as file:
-#         csv_reader = csv.reader(file)
-#         for row in csv_reader:
-#             key = f"{row[0]} {row[1]}"
-#             sim_matrix[key] = int(row[2])
-#     return sim_matrix
-
-def build_adjacency_matrix(sim_matrix, num_songs):
-    row = []
-    col = []
-    data = []
-    max_value = max(sim_matrix.values())
-    for key, value in sim_matrix.items():
-        d1, d2 = map(int, key.strip().split())
-        weight = value / max_value  # Normalize to [0,1]
-        row.extend([d1, d2])
-        col.extend([d2, d1])  # Assuming undirected graph
-        data.extend([weight, weight])  # Symmetric entries
-    adj_matrix = coo_matrix((data, (row, col)), shape=(num_songs, num_songs))
-    return adj_matrix
-
 def main():
     global num_songs
     # Load data
@@ -385,12 +311,11 @@ def main():
     
     # Load sim_matrix
     # sim_matrix = load_sim_matrix('processed_data/sim_matrix.csv')
-    with open('../processed_data/similarity_matrix.pkl', 'rb') as file:
-        sim_matrix = pickle.load(file)
-    adj_matrix = build_adjacency_matrix(sim_matrix, num_songs)
+    sparse_adj_matrix = load_npz('../processed_data/similarity_matrix_sparse.npz')
     
     # Convert adj_matrix to torch tensor
-    adj_matrix = torch.from_numpy(adj_matrix.toarray()).float()
+    adj_matrix = torch.from_numpy(sparse_adj_matrix.toarray()).float()
+    adj_matrix /= adj_matrix.max()  # Normalize to [0,1]
     
     # Create datasets
     train_dataset = PlaylistDataset(lines, song_embeddings, split_ratio=0.6, is_test=False)
@@ -414,7 +339,6 @@ def main():
     
     # Move adj_matrix to device
     adj_matrix = adj_matrix.to(device)
-    
     model = TransformerPlaylistModel(num_songs, embedding_dim, adj_matrix).to(device)
     
     # Initialize embedding layer with pretrained embeddings
@@ -427,7 +351,7 @@ def main():
     train_model(model, train_loader, num_epochs=50, device=device)
     
     # Save final model
-    torch.save(model.state_dict(), '../models/final_model_graph_seq.pt')
+    torch.save(model.state_dict(), '../models/final_model_text_graph_seq.pt')
     
     # Evaluate
     metrics = evaluate_model(model, test_loader, device=device)

@@ -1,16 +1,12 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 import math
 import csv
-from scipy.sparse import coo_matrix
-import pickle
 
-# Dataset class (no changes)
 class PlaylistDataset(Dataset):
     def __init__(self, playlists, song_embeddings, split_ratio=0.6, is_test=False):
         self.playlists = playlists
@@ -58,7 +54,7 @@ class PlaylistDataset(Dataset):
                 'target': torch.LongTensor([target]),
                 'playlist_len': len(train_seq)
             }
-        
+    
     def collate_fn(self, batch):
         # Remove None values
         batch = [x for x in batch if x is not None]
@@ -110,103 +106,13 @@ class PlaylistDataset(Dataset):
             'playlist_len': torch.tensor(playlist_lens)
         }
 
-# # Simple GCN module
-# class SimpleGCN(nn.Module):
-#     def __init__(self, in_features, out_features):
-#         super(SimpleGCN, self).__init__()
-#         self.fc = nn.Linear(in_features, out_features)
-        
-#     def forward(self, X, adj):
-#         # X: (num_nodes, in_features)
-#         # adj: (num_nodes, num_nodes)
-#         # Compute A_hat = D^{-1/2} * (A + I) * D^{-1/2}
-#         A = adj + torch.eye(adj.size(0), device=adj.device)
-#         D = torch.diag(A.sum(1))
-#         D_inv_sqrt = torch.pow(D, -0.5)
-#         D_inv_sqrt[D_inv_sqrt == float('inf')] = 0
-#         D_inv_sqrt = D_inv_sqrt.diag()
-#         A_hat = D_inv_sqrt @ A @ D_inv_sqrt
-#         X = A_hat @ X
-#         X = self.fc(X)
-#         X = F.relu(X)
-#         return X
-# class SimpleGCN(nn.Module):
-#     def __init__(self, in_features, out_features):
-#         super(SimpleGCN, self).__init__()
-#         self.fc = nn.Linear(in_features, out_features)
-        
-#     def forward(self, X, adj):
-#         # X: (num_nodes, in_features)
-#         # adj: (num_nodes, num_nodes)
-#         device = adj.device
-        
-#         # Add self-loops to adjacency matrix
-#         A = adj + torch.eye(adj.size(0), device=device)
-        
-#         # Compute the degree vector
-#         D = A.sum(1)
-        
-#         # Compute D^{-1/2}
-#         D_inv_sqrt = torch.pow(D, -0.5)
-#         D_inv_sqrt[D_inv_sqrt == float('inf')] = 0.0
-        
-#         # Construct diagonal degree matrix
-#         D_inv_sqrt_mat = torch.diag(D_inv_sqrt)
-        
-#         # Compute normalized adjacency matrix
-#         A_hat = D_inv_sqrt_mat @ A @ D_inv_sqrt_mat
-        
-#         # Perform graph convolution
-#         X = A_hat @ X
-#         X = self.fc(X)
-#         X = F.relu(X)
-#         return X
-class SimpleGCN(nn.Module):
-    def __init__(self, in_features, out_features):
-        super(SimpleGCN, self).__init__()
-        self.fc = nn.Linear(in_features, out_features)
-        
-    def forward(self, X, adj):
-        # X: (num_nodes, in_features)
-        # adj: (num_nodes, num_nodes)
-        device = adj.device
-        
-        # Add self-loops to adjacency matrix
-        A = adj + torch.eye(adj.size(0), device=device)
-        
-        # Compute the degree vector
-        D = A.sum(1)
-        
-        # Compute D^{-1/2} as a vector
-        D_inv_sqrt = torch.pow(D, -0.5)
-        D_inv_sqrt[torch.isinf(D_inv_sqrt)] = 0.0  # Handle division by zero
-        
-        # Compute normalized adjacency matrix element-wise
-        # A_hat_{ij} = A_{ij} / sqrt(D_i * D_j)
-        D_inv_sqrt_outer = D_inv_sqrt.unsqueeze(0) * D_inv_sqrt.unsqueeze(1)
-        A_hat = A * D_inv_sqrt_outer
-        
-        # Perform graph convolution
-        X = A_hat @ X
-        X = self.fc(X)
-        X = F.relu(X)
-        return X
-
-
-
-# TransformerPlaylistModel with integrated GCN
 class TransformerPlaylistModel(nn.Module):
-    def __init__(self, num_songs, embedding_dim, adj_matrix, nhead=8, num_layers=2, dropout=0.1):
+    def __init__(self, num_songs, embedding_dim, nhead=8, num_layers=2, dropout=0.1):
         super().__init__()
         self.num_songs = num_songs
         # Adjust num_embeddings and set padding_idx
         self.song_embeddings = nn.Embedding(num_songs + 1, embedding_dim, padding_idx=num_songs)
         self.pos_encoder = PositionalEncoding(embedding_dim, dropout)
-        
-        # GCN layer
-        self.gcn = SimpleGCN(embedding_dim, embedding_dim)
-        # Store adjacency matrix as a buffer
-        self.register_buffer('adj_matrix', adj_matrix)
         
         encoder_layers = nn.TransformerEncoderLayer(
             d_model=embedding_dim,
@@ -220,20 +126,13 @@ class TransformerPlaylistModel(nn.Module):
         
     def forward(self, input_ids, attention_mask=None):
         # Get embeddings
-        # Apply GCN to song embeddings
-        song_embs = self.song_embeddings.weight[:-1]  # Exclude padding embedding
-        song_embs = self.gcn(song_embs, self.adj_matrix)
-        # Add padding embedding back
-        song_embs = torch.cat([song_embs, self.song_embeddings.weight[-1].unsqueeze(0)], dim=0)
-        
-        # Get embeddings for input_ids
-        x = F.embedding(input_ids, song_embs, padding_idx=self.num_songs)
+        x = self.song_embeddings(input_ids)
         x = self.pos_encoder(x)
         
         # Create attention mask for transformer
         if attention_mask is not None:
             attention_mask = attention_mask == 0  # Mask positions where attention_mask == 0
-            
+        
         # Pass through transformer
         x = self.transformer_encoder(x, src_key_padding_mask=attention_mask)
         
@@ -261,7 +160,7 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
 
 def train_model(model, train_loader, num_epochs=10, device='cuda'):
-    optimizer = optim.Adam(model.parameters(), lr=0.01, weight_decay=1e-3)
+    optimizer = optim.Adam(model.parameters())
     criterion = nn.CrossEntropyLoss()
     
     for epoch in range(num_epochs):
@@ -351,46 +250,14 @@ def load_playlists(file_path, num_playlists=1000):
             playlists.append(row)
     return playlists[:num_playlists]
 
-# def load_sim_matrix(file_path):
-#     sim_matrix = {}
-#     with open(file_path, mode="r") as file:
-#         csv_reader = csv.reader(file)
-#         for row in csv_reader:
-#             key = f"{row[0]} {row[1]}"
-#             sim_matrix[key] = int(row[2])
-#     return sim_matrix
-
-def build_adjacency_matrix(sim_matrix, num_songs):
-    row = []
-    col = []
-    data = []
-    max_value = max(sim_matrix.values())
-    for key, value in sim_matrix.items():
-        d1, d2 = map(int, key.strip().split())
-        weight = value / max_value  # Normalize to [0,1]
-        row.extend([d1, d2])
-        col.extend([d2, d1])  # Assuming undirected graph
-        data.extend([weight, weight])  # Symmetric entries
-    adj_matrix = coo_matrix((data, (row, col)), shape=(num_songs, num_songs))
-    return adj_matrix
-
 def main():
-    global num_songs
+    global num_songs  # Make num_songs global so it can be accessed in Dataset
     # Load data
     lines = load_playlists('../processed_data/playlists_seq.csv', num_playlists=1000)
 
     song_embeddings = np.load('song_emb.npy')
     num_songs = song_embeddings.shape[0]
     embedding_dim = song_embeddings.shape[1]
-    
-    # Load sim_matrix
-    # sim_matrix = load_sim_matrix('processed_data/sim_matrix.csv')
-    with open('../processed_data/similarity_matrix.pkl', 'rb') as file:
-        sim_matrix = pickle.load(file)
-    adj_matrix = build_adjacency_matrix(sim_matrix, num_songs)
-    
-    # Convert adj_matrix to torch tensor
-    adj_matrix = torch.from_numpy(adj_matrix.toarray()).float()
     
     # Create datasets
     train_dataset = PlaylistDataset(lines, song_embeddings, split_ratio=0.6, is_test=False)
@@ -411,23 +278,19 @@ def main():
     
     # Initialize model
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
-    # Move adj_matrix to device
-    adj_matrix = adj_matrix.to(device)
-    
-    model = TransformerPlaylistModel(num_songs, embedding_dim, adj_matrix).to(device)
+    model = TransformerPlaylistModel(num_songs, embedding_dim).to(device)
     
     # Initialize embedding layer with pretrained embeddings
     with torch.no_grad():
         # Create a new embedding matrix with an extra row for padding
-        final_song_embeddings = np.vstack([song_embeddings, np.zeros((1, embedding_dim))])
-        model.song_embeddings.weight.copy_(torch.from_numpy(final_song_embeddings))
+        new_song_embeddings = np.vstack([song_embeddings, np.zeros((1, embedding_dim))])
+        model.song_embeddings.weight.copy_(torch.from_numpy(new_song_embeddings))
     
     # Train model
     train_model(model, train_loader, num_epochs=50, device=device)
     
     # Save final model
-    torch.save(model.state_dict(), '../models/final_model_graph_seq.pt')
+    torch.save(model.state_dict(), '../models/final_model_seq.pt')
     
     # Evaluate
     metrics = evaluate_model(model, test_loader, device=device)
