@@ -8,7 +8,7 @@ Follow the instructions below to set up your directory and run the code.
 ## Directory Structure
 
 Before running the code, ensure your directory is organized as follows:
-
+```
 project_root/ 
 ├── code/ 
 │ ├── matrix_factorization.py 
@@ -19,7 +19,7 @@ project_root/
 │ ├── playlists_seq.csv 
 │ ├── similarity_matrix.pkl 
 │ ├── similarity_matrix_sparse.npz
-
+```
 ### Files Overview
 - **code/**: Contains the scripts for different models:
   - `matrix_factorization.py`: Code for matrix factorization.
@@ -38,9 +38,11 @@ Start by running the matrix factorization code to generate initial song and play
 
 ```bash
 python code/matrix_factorization.py
-
+```
 ### Step 2: Run Other Models
-The generated embeddings (song_emb.npy and playlist_emb.npy) are required for the subsequent models. You can now run any of the other scripts:
+The generated embeddings (song_emb.npy and playlist_emb.npy) are required for the subsequent models. 
+
+You can now run any of the other scripts:
 
 Sequential Model:
 ```bash
