@@ -1,0 +1,82 @@
+Generated Spotify Playlists:
+
+Playlist Size: 8 songs
+Playlist Name: Generated Playlist 1 (8 songs)
+Playlist URL: https://open.spotify.com/playlist/3GSmKcIa8wNF6JtCWJpNdB
+--------------------------------------------------
+Playlist Size: 13 songs
+Playlist Name: Generated Playlist 2 (13 songs)
+Playlist URL: https://open.spotify.com/playlist/644fafoWGa8O4C3cp2kVYn
+--------------------------------------------------
+Playlist Size: 6 songs
+Playlist Name: Generated Playlist 3 (6 songs)
+Playlist URL: https://open.spotify.com/playlist/5tMQzbIWVSBmY93Tk97Y86
+--------------------------------------------------
+Playlist Size: 8 songs
+Playlist Name: Generated Playlist 4 (8 songs)
+Playlist URL: https://open.spotify.com/playlist/6Xz987Z56ABEfmTgqAxAdh
+--------------------------------------------------
+Playlist Size: 15 songs
+Playlist Name: Generated Playlist 5 (15 songs)
+Playlist URL: https://open.spotify.com/playlist/42n7IkJmKwfmaGHXVlIo2N
+--------------------------------------------------
+Playlist Size: 14 songs
+Playlist Name: Generated Playlist 6 (14 songs)
+Playlist URL: https://open.spotify.com/playlist/4Xn2L55DmHZc3huo34lOvn
+--------------------------------------------------
+Playlist Size: 14 songs
+Playlist Name: Generated Playlist 7 (14 songs)
+Playlist URL: https://open.spotify.com/playlist/2GtO48ipkAyIvOW3UxZQsy
+--------------------------------------------------
+Playlist Size: 11 songs
+Playlist Name: Generated Playlist 8 (11 songs)
+Playlist URL: https://open.spotify.com/playlist/0Ky1GeydZSwcziWupuMq57
+--------------------------------------------------
+Playlist Size: 9 songs
+Playlist Name: Generated Playlist 9 (9 songs)
+Playlist URL: https://open.spotify.com/playlist/6xt3YUBcigv5g6GAlAw2aK
+--------------------------------------------------
+Playlist Size: 7 songs
+Playlist Name: Generated Playlist 10 (7 songs)
+Playlist URL: https://open.spotify.com/playlist/53TtUpKXMsY2Fj3gNmDEvY
+--------------------------------------------------
+Playlist Size: 5 songs
+Playlist Name: Generated Playlist 11 (5 songs)
+Playlist URL: https://open.spotify.com/playlist/4s9MYaYTq6yCjkcgaHASr9
+--------------------------------------------------
+Playlist Size: 5 songs
+Playlist Name: Generated Playlist 12 (5 songs)
+Playlist URL: https://open.spotify.com/playlist/7BLYEuHSysjXjNQtDra9AM
+--------------------------------------------------
+Playlist Size: 10 songs
+Playlist Name: Generated Playlist 13 (10 songs)
+Playlist URL: https://open.spotify.com/playlist/0dVTtFBjDzZm6s74cHyOmt
+--------------------------------------------------
+Playlist Size: 11 songs
+Playlist Name: Generated Playlist 14 (11 songs)
+Playlist URL: https://open.spotify.com/playlist/55lIZcgRFjo1CWSwOmA00t
+--------------------------------------------------
+Playlist Size: 14 songs
+Playlist Name: Generated Playlist 15 (14 songs)
+Playlist URL: https://open.spotify.com/playlist/0YHRaRhIUU7MjWROLujf05
+--------------------------------------------------
+Playlist Size: 10 songs
+Playlist Name: Generated Playlist 16 (10 songs)
+Playlist URL: https://open.spotify.com/playlist/2M1jJZsm91Zw92NBuH15mR
+--------------------------------------------------
+Playlist Size: 14 songs
+Playlist Name: Generated Playlist 17 (14 songs)
+Playlist URL: https://open.spotify.com/playlist/0W8x4qb9ahtQoVKPZ1MQQN
+--------------------------------------------------
+Playlist Size: 12 songs
+Playlist Name: Generated Playlist 18 (12 songs)
+Playlist URL: https://open.spotify.com/playlist/6AW1fyk9BtjryJEMTS7Vok
+--------------------------------------------------
+Playlist Size: 11 songs
+Playlist Name: Generated Playlist 19 (11 songs)
+Playlist URL: https://open.spotify.com/playlist/55iEJdkpCRfvHFto5NVniN
+--------------------------------------------------
+Playlist Size: 12 songs
+Playlist Name: Generated Playlist 20 (12 songs)
+Playlist URL: https://open.spotify.com/playlist/31kO2WKy1HAAm8ZwmvQEeJ
+--------------------------------------------------
